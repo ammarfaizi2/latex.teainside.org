@@ -12,7 +12,7 @@ $initText =
 \\begin{align*}
  & \\textbf{Solve } I = \\int e^{x} \\sin(x)\\;dx \\\\
  & \\textbf{By using integration by part} \\\\
- & \\fbox{\$\\int udv = uv - \\int vdu\$} \\\\
+ & \\boxed{\\int udv = uv - \\int vdu} \\\\
  & \\textbf{Let } u = e^{x} \\rightarrow \\frac{du}{dx} = e^{x} \\rightarrow du = e^{x}\\;dx \\\\
  & \\textbf{Let } dv = \\sin(x)\\;dx \\rightarrow \\frac{dv}{dx} = \\sin(x) \\rightarrow v = -\\cos(x)\\\\
  & \\int e^{x} \\sin(x)\\;dx = e^{x} \\cdot \\left(-\\cos(x)\\right) - \\int -\\cos(x)\\;e^{x}\\;dx \\\\
@@ -21,7 +21,7 @@ $initText =
  & \\textbf{By using integration by part again} \\\\
  & \\textbf{Let } t = e^{x} \\rightarrow \\frac{dt}{dx} = e^{x} \\rightarrow dt = e^{x}\\;dx \\\\
  & \\textbf{Let } dw = \\cos(x)\\;dx \\rightarrow \\frac{dw}{dx} = \\cos(x) \\rightarrow w = \\sin(x) \\\\
- & \\fbox{\$\\int tdw = tw - \\int wdt\$} \\\\
+ & \\boxed{\\int tdw = tw - \\int wdt} \\\\
  & \\int \\cos(x)\\;e^{x}\\;dx = e^{x} \\sin(x) - \\int \\sin(x) e^{x}\\;dx \\\\
  & \\textbf{Stop here, don't use integration by part again,} \\\\ & \\textbf{if you do it will never end!} \\\\
  & \\textbf{Plug back the result of } \\int \\cos(x)\\;e^{x}\\;dx \\\\
