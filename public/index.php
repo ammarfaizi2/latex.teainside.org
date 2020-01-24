@@ -29,7 +29,7 @@ $initText =
  & \\textbf{Move } \\left[\\int \\sin(x) e^{x}\\;dx\\right] \\textbf{ to the left side} \\\\
  & \\int \\sin(x) e^{x}\\;dx + \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + e^{x} \\sin(x) \\\\
  & 2 \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + e^{x} \\sin(x) \\\\
- & \\int e^{x} \\sin(x)\\;dx = \\frac{e^{x}}{2} \\left(\\sin(x) - \\cos(x)\\right) + C \\\\ \\\\
+ & \\int e^{x} \\sin(x)\\;dx = \\frac{e^{x}}{2} \\left(\\sin(x) - \\cos(x)\\right) + C \\\\
  & \\textbf{by @ammarfaizi2}
 \\end{align*}
 \\end{document}";
