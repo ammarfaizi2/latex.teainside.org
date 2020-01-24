@@ -24,6 +24,14 @@ if (isset($_GET["action"])) {
             } else {
                 $json["d"] = 450;
             }
+            if (isset($json["border"])) {
+                if (!is_string($json["border"])) {
+                    $res = "\"border\" parameter must be a string\"";
+                    goto ret;
+                }
+            } else {
+                $json["border"] = null;
+            }
     
             $st = new \TeaLatex\TeaLatex($json["content"]);
             if (!$st->save()) {
@@ -35,7 +43,7 @@ if (isset($_GET["action"])) {
                 $log = $st->getCompileLog();
                 goto ret;
             }
-            if (!($res = $st->convertPng($json["d"]))) {
+            if (!($res = $st->convertPng($json["d"], $json["border"]))) {
                 $res = "Error when converting to png!";
                 goto ret;
             }

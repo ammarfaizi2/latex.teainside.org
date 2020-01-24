@@ -23,6 +23,11 @@ final class TeaLatex
     const DVIPNG_BIN = "/usr/bin/dvipng";
 
     /**
+     * @const string
+     */
+    const CONVERT_BIN = "/usr/bin/convert";
+
+    /**
      * @var string
      */
     private $content;
@@ -64,8 +69,8 @@ final class TeaLatex
      */
     public function __destruct()
     {
-        unlink($this->auxFile);
-        unlink($this->logFile);
+        @unlink($this->auxFile);
+        @unlink($this->logFile);
     }
 
     /**
@@ -112,11 +117,12 @@ final class TeaLatex
 
     /**
      * @param int $d
+     * @param ?string $border
      * @return ?string
      */
-    public function convertPng(int $d = 400): ?string
+    public function convertPng(int $d = 400, ?string $border = null): ?string
     {
-        $pngHash = sha1($this->hash.$d);
+        $pngHash = sha1($this->hash.$d.$border);
         $pngFile = TEALATEX_DIR."/png/".$pngHash.".png";
 
         shell_exec(
@@ -127,6 +133,15 @@ final class TeaLatex
 
         if (!file_exists($pngFile)) {
             return null;
+        }
+
+        if (is_string($border)) {
+            shell_exec(
+                self::CONVERT_BIN." ".$pngFile." ".
+                "-fuzz 10% -trim +repage -bordercolor white -border ".
+                escapeshellarg($border)." ".
+                $pngFile
+            );
         }
 
         return $pngHash;
