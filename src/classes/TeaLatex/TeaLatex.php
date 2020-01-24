@@ -83,6 +83,14 @@ final class TeaLatex
     }
 
     /**
+     * @return string
+     */
+    public function getCompileLog(): string
+    {
+        return (string)@file_get_contents($this->logFile);
+    }
+
+    /**
      * @return bool
      */
     public function compile(): bool
