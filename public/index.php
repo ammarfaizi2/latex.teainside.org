@@ -99,7 +99,7 @@ $initText =
 
         <div id="result" style="display:none;">
             <h1>Result:</h1>
-            <img id="rimg"/>
+            <a href="" id="link_rimg" target="_blank"><img id="rimg"/></a>
         </div>
     </div>
     <script type="text/javascript">
@@ -114,7 +114,8 @@ $initText =
             result = doc().getElementById("result"),
             rimg = doc().getElementById("rimg"),
             auto_scroll = doc().getElementById("auto_scroll"),
-            compile_btn = doc().getElementById("compile_btn");
+            compile_btn = doc().getElementById("compile_btn"),
+            link_rimg = doc().getElementById("link_rimg");
 
         function tex2png(content, d = 450, border = null) {
             compile_btn.disabled = 1;
@@ -133,6 +134,7 @@ $initText =
                     } else if (json.status === "success") {
                         result.style.display = "";
                         rimg.src = "/latex/png/"+json.res+".png";
+                        link_rimg.href = "/latex/png/"+json.res+".png";
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight);
@@ -146,7 +148,7 @@ $initText =
             tex2png(
                 doc().getElementById("content").value,
                 parseInt(doc().getElementById("density").value),
-                doc().getElementById("border").value
+                doc().getElementById("border").value,
             );
         });
     </script>
