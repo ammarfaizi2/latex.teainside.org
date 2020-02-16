@@ -77,15 +77,20 @@ $initText =
         <h3>TeaLaTeX</h3>
         <form method="post" id="mform" action="javascript:void(0);">
             <div id="input_opt">
+                PNG Settings
+                <div style="border:1px solid #000;">
                 Auto Scroll: <input type="checkbox" id="auto_scroll"/>
-                D: <input type="number" name="density" id="density" value="250"/>
-                Border: <input type="text" name="border" id="border" value="50x20"/>
+                D: <input type="number" size="5" name="density" id="density" value="250"/>
+                Border: <input type="text" size="5" name="border" id="border" value="50x20"/>
+                Border Color: <input type="text" size="5" name="border_color" id="border_color" value="white"/>
+                </div>
             </div>
             <div>
                 <textarea id="content" required style="width:804px;height:200px;"><?php echo htmlspecialchars($initText, ENT_QUOTES, "UTF-8"); ?></textarea>
             </div>
             <div>
-                <button id="compile_btn" type="submit">Compile</button>
+                <button id="create_png" type="button">Create PNG</button>
+                <button id="create_pdf" type="button">Create PDF</button>
             </div>
         </form>
     </div>
@@ -101,6 +106,10 @@ $initText =
             <h1>Result:</h1>
             <a href="" id="link_rimg" target="_blank"><img id="rimg"/></a>
         </div>
+
+        <div id="result_pdf" style="display:none;">
+            <a id="pdf_link" href="" target="_blank" style="color:blue;"><h2>Open PDF File</h2></a>
+        </div>
     </div>
     <script type="text/javascript">
 
@@ -114,18 +123,48 @@ $initText =
             result = doc().getElementById("result"),
             rimg = doc().getElementById("rimg"),
             auto_scroll = doc().getElementById("auto_scroll"),
-            compile_btn = doc().getElementById("compile_btn"),
-            link_rimg = doc().getElementById("link_rimg");
+            create_png_btn = doc().getElementById("create_png"),
+            link_rimg = doc().getElementById("link_rimg"),
+            create_pdf_btn =  doc().getElementById("create_pdf"),
+            result_pdf = doc().getElementById("result_pdf"),
+            pdf_link = doc().getElementById("pdf_link");
 
-        function tex2png(content, d = 450, border = null) {
-            compile_btn.disabled = 1;
-            result.style.display = error_log.style.display = "none";
+        function tex2pdf(content) {
+            result_pdf.style.display = result.style.display = error_log.style.display = "none";
+            compiling.style.display = "";
+            create_png_btn.disabled = create_pdf_btn.disabled = 1;
+            let ch = new XMLHttpRequest;
+            ch.open("POST", "/api.php?action=tex2pdf");
+            ch.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    create_png_btn.disabled = create_pdf_btn.disabled = 0;
+                    compiling.style.display = "none";
+                    let json = JSON.parse(this.responseText);
+                    if (json.status === "error") {
+                        error_log.style.display = "";
+                        error_log_data.value = json.log;
+                    } else if (json.status === "success") {
+                        result_pdf.style.display = "";
+                        pdf_link.href = "/latex/pdf/"+json.res+".pdf";
+                    }
+                    if (auto_scroll.checked) {
+                        window.scrollTo(0,document.body.scrollHeight * (0.5));
+                    }
+                }
+            };
+            ch.send(JSON.stringify({content: content}));
+        }
+
+        function tex2png(content, d = 450, border = null, bcolor = "white") {
+            rimg.src = "";
+            create_png_btn.disabled = create_pdf_btn.disabled = 1;
+            result_pdf.style.display = result.style.display = error_log.style.display = "none";
             compiling.style.display = "";
             let ch = new XMLHttpRequest;
             ch.open("POST", "/api.php?action=tex2png");
             ch.onreadystatechange = function () {
                 if (this.readyState === 4) {
-                    compile_btn.disabled = 0;
+                    create_png_btn.disabled = create_pdf_btn.disabled = 0;
                     compiling.style.display = "none";
                     let json = JSON.parse(this.responseText);
                     if (json.status === "error") {
@@ -137,19 +176,23 @@ $initText =
                         link_rimg.href = "/latex/png/"+json.res+".png";
                     }
                     if (auto_scroll.checked) {
-                        window.scrollTo(0,document.body.scrollHeight);
+                        window.scrollTo(0,document.body.scrollHeight * (0.5));
                     }
                 }
             };
-            ch.send(JSON.stringify({content: content, d: d, border: border}));
+            ch.send(JSON.stringify({content: content, d: d, border: border, bcolor: bcolor}));
         }
 
-        doc().getElementById("mform").addEventListener("submit", function () {
+        create_png_btn.addEventListener("click", function () {
             tex2png(
                 doc().getElementById("content").value,
                 parseInt(doc().getElementById("density").value),
                 doc().getElementById("border").value,
+                doc().getElementById("border_color").value
             );
+        });
+        create_pdf_btn.addEventListener("click", function () {
+            tex2pdf(doc().getElementById("content").value);
         });
     </script>
 </center>

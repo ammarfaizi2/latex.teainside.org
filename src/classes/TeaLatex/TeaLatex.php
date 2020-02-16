@@ -28,6 +28,11 @@ final class TeaLatex
     const CONVERT_BIN = "/usr/bin/convert";
 
     /**
+     * @const string
+     */
+    const PDFLATEX_BIN = "/usr/bin/pdflatex";
+
+    /**
      * @var string
      */
     private $content;
@@ -62,6 +67,7 @@ final class TeaLatex
         $this->texFile = TEALATEX_DIR."/tex/".$this->hash.".tex";
         is_dir(TEALATEX_DIR."/png") or mkdir(TEALATEX_DIR."/png");
         is_dir(TEALATEX_DIR."/tex") or mkdir(TEALATEX_DIR."/tex");
+        is_dir(TEALATEX_DIR."/pdf") or mkdir(TEALATEX_DIR."/pdf");
     }
 
     /**
@@ -120,9 +126,37 @@ final class TeaLatex
      * @param ?string $border
      * @return ?string
      */
-    public function convertPng(int $d = 400, ?string $border = null): ?string
+    public function convertPdf(): ?string
     {
-        $pngHash = sha1($this->hash.$d.$border);
+        $ret = file_exists(TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+        if (!$ret) {
+            shell_exec(
+                "cd ".escapeshellarg(TEALATEX_DIR."/tex")."; ".
+                self::PDFLATEX_BIN." ".escapeshellarg($this->texFile).
+                " < /dev/null");
+            if (file_exists(TEALATEX_DIR."/tex/".$this->hash.".pdf")) {
+                rename(
+                    TEALATEX_DIR."/tex/".$this->hash.".pdf",
+                    TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+            }
+            $ret = file_exists(TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+        }
+
+        if (!$ret) {
+            @unlink($this->texFile);
+            return null;
+        }
+        return $this->hash;
+    }
+
+    /**
+     * @param int $d
+     * @param ?string $border
+     * @return ?string
+     */
+    public function convertPng(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
+    {
+        $pngHash = sha1($this->hash.$d.$border.$bColor);
         $pngFile = TEALATEX_DIR."/png/".$pngHash.".png";
 
         shell_exec(
@@ -138,7 +172,7 @@ final class TeaLatex
         if (is_string($border)) {
             shell_exec(
                 self::CONVERT_BIN." ".$pngFile." ".
-                "-fuzz 10% -trim +repage -bordercolor white -border ".
+                "-fuzz 10% -trim +repage -bordercolor ".escapeshellarg($bColor)." -border ".
                 escapeshellarg($border)." ".
                 $pngFile
             );

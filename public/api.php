@@ -32,6 +32,15 @@ if (isset($_GET["action"])) {
             } else {
                 $json["border"] = null;
             }
+
+            if (isset($json["bcolor"])) {
+                if (!is_string($json["bcolor"])) {
+                    $res = "\"bcolor\" parameter must be a string\"";
+                    goto ret;
+                }
+            } else {
+                $json["bcolor"] = "white";
+            }
     
             $st = new \TeaLatex\TeaLatex($json["content"]);
             if (!$st->save()) {
@@ -43,13 +52,33 @@ if (isset($_GET["action"])) {
                 $log = $st->getCompileLog();
                 goto ret;
             }
-            if (!($res = $st->convertPng($json["d"], $json["border"]))) {
+            if (!($res = $st->convertPng($json["d"], $json["border"], $json["bcolor"]))) {
                 $res = "Error when converting to png!";
                 goto ret;
             }
             $status = "success";
             break;
         
+        case "tex2pdf":
+            $json = json_decode(file_get_contents("php://input"), true);
+            if (!(isset($json["content"]) && is_string($json["content"]))) {
+                $res = "\"content\" string parameter required";
+                goto ret;
+            }
+
+            $st = new \TeaLatex\TeaLatex($json["content"]);
+            if (!$st->save()) {
+                $res = "Error when saving tex file!";
+                goto ret;
+            }
+            if (!($res = $st->convertPdf())) {
+                $res = "Error when compiling tex file";
+                $log = $st->getCompileLog();
+                goto ret;
+            }
+            $status = "success";
+            break;
+
         default:
         break;
     }
