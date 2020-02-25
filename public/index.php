@@ -111,14 +111,16 @@ $initText =
             </div>
         </div>
         <div id="save_file_panel" style="display:none">
-            <h3>Save to a new File</h3>
-            <div style="margin-bottom:20px;">
-                Filename: <input type="text" id="save_filename"/>
-            </div>
-            <div>
-                <button id="apply_save_btn">Save</button>
-                <button id="cancel_save_btn">Cancel</button>
-            </div>
+            <form action="javascript:void(0);" id="save_file_form">
+                <h3>Save to a new File</h3>
+                <div style="margin-bottom:20px;">
+                    Filename: <input type="text" id="save_filename" required/>
+                </div>
+                <div>
+                    <button id="apply_save_btn" type="submit">Save</button>
+                    <button id="cancel_save_btn" type="button">Cancel</button>
+                </div>
+            </form>
         </div>
         <div id="list_file_panel" style="display:none;">
             <button id="close_list_file_btn">Close</button>
@@ -194,7 +196,8 @@ $initText =
             opened_filename_sw = gid("opened_filename_sw"),
             unsaved_hint = gid("unsaved_hint"),
             saved_files_table = gid("saved_files_table"),
-            saved_state = false;
+            saved_state = false,
+            save_file_form = gid("save_file_form");
 
         function get_saved_works() {
             let saved_works;
@@ -321,7 +324,7 @@ $initText =
                 unsaved_hint.style.display = "";
             }
         });
-        apply_save_btn.addEventListener("click", function () {
+        function apply_save_callback() {
             let saved_works = get_saved_works();
             if (typeof saved_works[save_filename.value] !== "undefined") {
                 if (!confirm("File \""+save_filename.value+"\" is existing on your saved file. Do you want to replace it?")) {
@@ -342,7 +345,9 @@ $initText =
             file_panel.style.display = "";
             unsaved_hint.style.display = save_file_panel.style.display = "none";
             saved_state = true;
-        });
+        };
+        apply_save_btn.addEventListener("click", apply_save_callback);
+        save_file_form.addEventListener("submit", apply_save_callback);
 
         function tex2pdf(content) {
             result_pdf.style.display = result.style.display = error_log.style.display = "none";
