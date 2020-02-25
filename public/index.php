@@ -94,6 +94,9 @@ $initText =
             padding: 5px 10px 5px 10px;
             text-align: left;
         }
+        #saved_notif {
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -102,7 +105,7 @@ $initText =
         <h3>TeaLaTeX</h3>
         <div id="file_panel">
             <div class="file_panel_status">
-                <span>Filename: <span id="unsaved_hint">*</span><span id="opened_filename_sw">Untitled</span></span>
+                <span>Filename: <span id="unsaved_hint">*</span><span id="opened_filename_sw">Untitled</span>&nbsp;<span id="saved_notif" style="opacity:0;">(Saved)</span></span>
             </div>
             <div class="file_panel_buttons">
                 <button id="open_btn">Open</button>
@@ -270,18 +273,31 @@ $initText =
                 save_file_panel.style.display = "";
                 return;
             }
-            let saved_works = get_saved_works();
-            saved_works[opened_filename] = [
-                gid("content").value,
-                parseInt(gid("density").value),
-                gid("border").value,
-                gid("border_color").value,
-                (new Date()).toString()
-            ];
-            ls.setItem("saved_works", JSON.stringify(saved_works));
-            saved_state = true;
-            unsaved_hint.style.display = "none";
+
+            if (!saved_state) {
+                let saved_works = get_saved_works();
+                saved_works[opened_filename] = [
+                    gid("content").value,
+                    parseInt(gid("density").value),
+                    gid("border").value,
+                    gid("border_color").value,
+                    (new Date()).toString()
+                ];
+                ls.setItem("saved_works", JSON.stringify(saved_works));
+                saved_state = true;
+                unsaved_hint.style.display = "none";
+            }
+            save_notif();
         });
+        function save_notif() {
+            saved_notif.style.opacity = 1;
+            let itv = setInterval(function () {
+                saved_notif.style.opacity -= 0.3;
+                if (saved_notif.style.opacity <= 0) {
+                    clearInterval(itv);
+                }
+            }, 100);
+        }
         function ropen_file(fname) {
             if ((!saved_state) && (opened_filename_sw.innerHTML.trim() !== "Untitled")) {
                 if (!confirm("You have unsaved work, do you want to continue without saving?")) {
@@ -349,6 +365,7 @@ $initText =
             file_panel.style.display = "";
             unsaved_hint.style.display = save_file_panel.style.display = "none";
             saved_state = true;
+            save_notif();
         };
         save_file_form.addEventListener("submit", apply_save_callback);
 
