@@ -117,7 +117,7 @@ $initText =
                     Filename: <input type="text" id="save_filename" required/>
                 </div>
                 <div>
-                    <button id="apply_save_btn" type="submit">Save</button>
+                    <button type="submit">Save</button>
                     <button id="cancel_save_btn" type="button">Cancel</button>
                 </div>
             </form>
@@ -190,7 +190,6 @@ $initText =
             close_list_file_btn = gid("close_list_file_btn"),
             ls = localStorage,
             opened_filename = null,
-            apply_save_btn = gid("apply_save_btn"),
             cancel_save_btn = gid("cancel_save_btn"),
             save_filename = gid("save_filename"),
             opened_filename_sw = gid("opened_filename_sw"),
@@ -326,6 +325,11 @@ $initText =
         });
         function apply_save_callback() {
             let saved_works = get_saved_works();
+            save_filename.value = save_filename.value.trim();
+            if (save_filename.value === "") {
+                alert("Filename cannot be empty!");
+                return;
+            }
             if (typeof saved_works[save_filename.value] !== "undefined") {
                 if (!confirm("File \""+save_filename.value+"\" is existing on your saved file. Do you want to replace it?")) {
                     return;
@@ -346,7 +350,6 @@ $initText =
             unsaved_hint.style.display = save_file_panel.style.display = "none";
             saved_state = true;
         };
-        apply_save_btn.addEventListener("click", apply_save_callback);
         save_file_form.addEventListener("submit", apply_save_callback);
 
         function tex2pdf(content) {
