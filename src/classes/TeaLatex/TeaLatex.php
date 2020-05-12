@@ -180,4 +180,37 @@ final class TeaLatex
 
         return $pngHash;
     }
+
+    /**
+     * @param int $d
+     * @param ?string $border
+     * @return ?string
+     */
+    public function convertPngNoOp(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
+    {
+        $pngHash = sha1($this->hash.$d.$border.$bColor."_no_optimization");
+        $pngFile = TEALATEX_DIR."/png/".$pngHash.".png";
+        $pdfHash = $this->convertPdf();
+
+        if (!$pdfHash) {
+            return null;
+        }
+
+        $pdfFile = TEALATEX_DIR."/pdf/".$pdfHash.".pdf";
+        shell_exec(
+            self::CONVERT_BIN.
+            " -trim -density {$d} ".escapeshellarg($pdfFile).
+            " -fuzz 10%".
+            " +repage".
+            " -bordercolor ".escapeshellarg($bColor).
+            " -border ".escapeshellarg($border).
+            " -quality 90 ".escapeshellarg($pngFile)
+        );
+
+        if (!file_exists($pngFile)) {
+            return null;
+        }
+
+        return $pngHash;
+    }
 }

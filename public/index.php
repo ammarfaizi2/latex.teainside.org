@@ -148,6 +148,7 @@ $initText =
                 </div>
                 <div>
                     <button id="create_png" type="button">Create PNG</button>
+                    <button id="create_png_no_op" type="button">Create PNG (no optimization)</button>
                     <button id="create_pdf" type="button">Create PDF</button>
                 </div>
             </form>
@@ -199,7 +200,8 @@ $initText =
             unsaved_hint = gid("unsaved_hint"),
             saved_files_table = gid("saved_files_table"),
             saved_state = false,
-            save_file_form = gid("save_file_form");
+            save_file_form = gid("save_file_form"),
+            create_png_no_op_btn = gid("create_png_no_op");
 
         function get_saved_works() {
             let saved_works;
@@ -372,12 +374,12 @@ $initText =
         function tex2pdf(content) {
             result_pdf.style.display = result.style.display = error_log.style.display = "none";
             compiling.style.display = "";
-            create_png_btn.disabled = create_pdf_btn.disabled = 1;
+            create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 1;
             let ch = new XMLHttpRequest;
             ch.open("POST", "api.php?action=tex2pdf");
             ch.onreadystatechange = function () {
                 if (this.readyState === 4) {
-                    create_png_btn.disabled = create_pdf_btn.disabled = 0;
+                    create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 0;
                     compiling.style.display = "none";
                     let json = JSON.parse(this.responseText);
                     if (json.status === "error") {
@@ -397,14 +399,42 @@ $initText =
 
         function tex2png(content, d = 450, border = null, bcolor = "white") {
             rimg.src = "";
-            create_png_btn.disabled = create_pdf_btn.disabled = 1;
+            create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 1;
             result_pdf.style.display = result.style.display = error_log.style.display = "none";
             compiling.style.display = "";
             let ch = new XMLHttpRequest;
             ch.open("POST", "api.php?action=tex2png");
             ch.onreadystatechange = function () {
                 if (this.readyState === 4) {
-                    create_png_btn.disabled = create_pdf_btn.disabled = 0;
+                    create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 0;
+                    compiling.style.display = "none";
+                    let json = JSON.parse(this.responseText);
+                    if (json.status === "error") {
+                        error_log.style.display = "";
+                        error_log_data.value = json.log;
+                    } else if (json.status === "success") {
+                        result.style.display = "";
+                        rimg.src = "latex/png/"+json.res+".png";
+                        link_rimg.href = "latex/png/"+json.res+".png";
+                    }
+                    if (auto_scroll.checked) {
+                        window.scrollTo(0,document.body.scrollHeight * (0.5));
+                    }
+                }
+            };
+            ch.send(JSON.stringify({content: content, d: d, border: border, bcolor: bcolor}));
+        }
+
+        function tex2png_no_op(content, d = 450, border = null, bcolor = "white") {
+            rimg.src = "";
+            create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 1;
+            result_pdf.style.display = result.style.display = error_log.style.display = "none";
+            compiling.style.display = "";
+            let ch = new XMLHttpRequest;
+            ch.open("POST", "api.php?action=tex2png_no_op");
+            ch.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    create_png_no_op_btn.disabled = create_png_btn.disabled = create_pdf_btn.disabled = 0;
                     compiling.style.display = "none";
                     let json = JSON.parse(this.responseText);
                     if (json.status === "error") {
@@ -425,6 +455,14 @@ $initText =
 
         create_png_btn.addEventListener("click", function () {
             tex2png(
+                gid("content").value,
+                parseInt(gid("density").value),
+                gid("border").value,
+                gid("border_color").value
+            );
+        });
+        create_png_no_op_btn.addEventListener("click", function () {
+            tex2png_no_op(
                 gid("content").value,
                 parseInt(gid("density").value),
                 gid("border").value,

@@ -11,6 +11,7 @@ $res = "no_action";
 if (isset($_GET["action"])) {
     switch ($_GET["action"]) {
         case "tex2png":
+        case "tex2png_no_op":
             $json = json_decode(file_get_contents("php://input"), true);
             if (!(isset($json["content"]) && is_string($json["content"]))) {
                 $res = "\"content\" string parameter required";
@@ -52,9 +53,16 @@ if (isset($_GET["action"])) {
                 $log = $st->getCompileLog();
                 goto ret;
             }
-            if (!($res = $st->convertPng($json["d"], $json["border"], $json["bcolor"]))) {
-                $res = "Error when converting to png!";
-                goto ret;
+            if ($_GET["action"] === "tex2png_no_op") {
+                if (!($res = $st->convertPngNoOp($json["d"], $json["border"], $json["bcolor"]))) {
+                    $res = "Error when converting to png!";
+                    goto ret;
+                }
+            } else {
+                if (!($res = $st->convertPng($json["d"], $json["border"], $json["bcolor"]))) {
+                    $res = "Error when converting to png!";
+                    goto ret;
+                }
             }
             $status = "success";
             break;
