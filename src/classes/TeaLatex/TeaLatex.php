@@ -110,7 +110,7 @@ final class TeaLatex
         if (!$ret) {
             shell_exec(
                 "cd ".escapeshellarg(TEALATEX_DIR."/tex")."; ".
-                self::LATEX_BIN." ".escapeshellarg($this->texFile).
+                self::LATEX_BIN." -shell-escape ".escapeshellarg($this->texFile).
                 " < /dev/null");
             $ret = file_exists($this->dviFile);
         }
