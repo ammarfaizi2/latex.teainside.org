@@ -374,7 +374,7 @@ $initText =
             compiling.style.display = "";
             create_png_btn.disabled = create_pdf_btn.disabled = 1;
             let ch = new XMLHttpRequest;
-            ch.open("POST", "/api.php?action=tex2pdf");
+            ch.open("POST", "api.php?action=tex2pdf");
             ch.onreadystatechange = function () {
                 if (this.readyState === 4) {
                     create_png_btn.disabled = create_pdf_btn.disabled = 0;
@@ -385,7 +385,7 @@ $initText =
                         error_log_data.value = json.log;
                     } else if (json.status === "success") {
                         result_pdf.style.display = "";
-                        pdf_link.href = "/latex/pdf/"+json.res+".pdf";
+                        pdf_link.href = "latex/pdf/"+json.res+".pdf";
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight * (0.5));
@@ -401,7 +401,7 @@ $initText =
             result_pdf.style.display = result.style.display = error_log.style.display = "none";
             compiling.style.display = "";
             let ch = new XMLHttpRequest;
-            ch.open("POST", "/api.php?action=tex2png");
+            ch.open("POST", "api.php?action=tex2png");
             ch.onreadystatechange = function () {
                 if (this.readyState === 4) {
                     create_png_btn.disabled = create_pdf_btn.disabled = 0;
@@ -412,8 +412,8 @@ $initText =
                         error_log_data.value = json.log;
                     } else if (json.status === "success") {
                         result.style.display = "";
-                        rimg.src = "/latex/png/"+json.res+".png";
-                        link_rimg.href = "/latex/png/"+json.res+".png";
+                        rimg.src = "latex/png/"+json.res+".png";
+                        link_rimg.href = "latex/png/"+json.res+".png";
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight * (0.5));
