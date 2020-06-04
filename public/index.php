@@ -1,36 +1,29 @@
 <?php
 
 $initText =
-"\\documentclass[30pt]{article}
+"\\documentclass[12pt]{article}
 \\usepackage{amsmath}
 \\usepackage{amssymb}
 \\usepackage{amsfonts}
 \\usepackage{cancel}
+\\usepackage{color}
+\\usepackage{xcolor}
+\\definecolor{my_custom_green}{HTML}{1f8012}
 \\usepackage[utf8]{inputenc}
 \\thispagestyle{empty}
 \\begin{document}
 \\begin{align*}
- & \\textbf{Solve } I = \\int e^{x} \\sin(x)\\;dx \\\\
- & \\textbf{By using integration by part} \\\\
- & \\boxed{\\int udv = uv - \\int vdu} \\\\
- & \\textbf{Let } u = e^{x} \\rightarrow \\frac{du}{dx} = e^{x} \\rightarrow du = e^{x}\\;dx \\\\
- & \\textbf{Let } dv = \\sin(x)\\;dx \\rightarrow \\frac{dv}{dx} = \\sin(x) \\rightarrow v = -\\cos(x)\\\\
- & \\int e^{x} \\sin(x)\\;dx = e^{x} \\cdot \\left(-\\cos(x)\\right) - \\int -\\cos(x)\\;e^{x}\\;dx \\\\
- & \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + \\int \\cos(x)\\;e^{x}\\;dx \\\\
- & \\textbf{Solve this first: } \\int \\cos(x)\\;e^{x}\\;dx \\\\
- & \\textbf{By using integration by part again} \\\\
- & \\textbf{Let } t = e^{x} \\rightarrow \\frac{dt}{dx} = e^{x} \\rightarrow dt = e^{x}\\;dx \\\\
- & \\textbf{Let } dw = \\cos(x)\\;dx \\rightarrow \\frac{dw}{dx} = \\cos(x) \\rightarrow w = \\sin(x) \\\\
- & \\boxed{\\int tdw = tw - \\int wdt} \\\\
- & \\int \\cos(x)\\;e^{x}\\;dx = e^{x} \\sin(x) - \\int \\sin(x) e^{x}\\;dx \\\\
- & \\textbf{Stop here, don't use integration by part again,} \\\\ & \\textbf{if you do it will never end!} \\\\
- & \\textbf{Plug back the result of } \\int \\cos(x)\\;e^{x}\\;dx \\\\
- & \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + e^{x} \\sin(x) - \\int \\sin(x) e^{x}\\;dx \\\\
- & \\textbf{Move } \\left[\\int \\sin(x) e^{x}\\;dx\\right] \\textbf{ to the left side} \\\\
- & \\int \\sin(x) e^{x}\\;dx + \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + e^{x} \\sin(x) \\\\
- & 2 \\int e^{x} \\sin(x)\\;dx = -e^{x} \\cos(x) + e^{x} \\sin(x) \\\\
- & \\int e^{x} \\sin(x)\\;dx = \\frac{e^{x}}{2} \\left(\\sin(x) - \\cos(x)\\right) + C \\\\
- & \\textbf{by @ammarfaizi2}
+ & \\text{Let } y = x^{x} \\text{, find } \\frac{dy}{dx} \\\\
+ & {\\color{my_custom_green} \\text{By using natural logarithm}} \\\\
+ & \\ln(y) = \\ln\\left(x^{x}\\right) \\\\
+ & \\ln(y) = x\\ln(x) \\\\
+ & {\\color{blue} \\text{By using implicit differentiation}} \\\\
+ & \\frac{d}{dx} \\ln(y) = \\frac{d}{dx} x\\ln(x) \\\\
+ & \\frac{1}{y}\\frac{dy}{dx} = 1\\cdot\\ln(x) + \\cancel{x}\\frac{1}{\\cancel{x}} \\\\
+ & \\frac{dy}{dx} = y(\\ln(x) + 1) \\\\
+ & {\\color{red} \\text{Plug back } y \\text{ to the equation}} \\\\
+ & \\boxed{y = x^{x}} \\\\
+ & \\therefore \\frac{dy}{dx} = x^{x}(\\ln(x) + 1) \\\\
 \\end{align*}
 \\end{document}";
 
@@ -138,7 +131,7 @@ $initText =
                     <span>PNG Settings</span>
                     <div>
                         Auto Scroll: <input type="checkbox" id="auto_scroll"/>
-                        D: <input type="number" size="5" name="density" id="density" value="250"/>
+                        D: <input type="number" size="5" name="density" id="density" value="200"/>
                         Border: <input type="text" size="5" name="border" id="border" value="50x20"/>
                         Border Color: <input type="text" size="5" name="border_color" id="border_color" value="white"/>
                     </div>
