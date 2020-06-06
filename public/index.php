@@ -63,9 +63,6 @@ $initText =
             align-items: left;
             flex-wrap: wrap;
         }
-        #list_file_panel table {
-
-        }
         #list_file_panel table th,
         #list_file_panel table td {
             padding: 10px 15px 10px 15px;
