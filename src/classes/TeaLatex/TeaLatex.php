@@ -109,8 +109,14 @@ final class TeaLatex
         $ret = file_exists($this->dviFile);
         if (!$ret) {
             shell_exec(
-                "cd ".escapeshellarg(TEALATEX_DIR."/tex")."; ".
-                self::LATEX_BIN." -shell-escape ".escapeshellarg($this->texFile).
+                "cd ".escapeshellarg(TEALATEX_DIR."/tex").";".
+                "/usr/bin/env TEXMFOUTPUT=".
+                escapeshellarg(TEALATEX_DIR."/tex")." ".
+                self::LATEX_BIN.
+                " -output-directory ".
+                escapeshellarg(TEALATEX_DIR."/tex").
+                " -shell-escape ".
+                escapeshellarg($this->texFile).
                 " < /dev/null");
             $ret = file_exists($this->dviFile);
         }
