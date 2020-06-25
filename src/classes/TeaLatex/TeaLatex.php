@@ -108,13 +108,14 @@ final class TeaLatex
     {
         $ret = file_exists($this->dviFile);
         if (!$ret) {
+            $escapedOutDir = escapeshellarg(TEALATEX_DIR."/tex");
             shell_exec(
-                "cd ".escapeshellarg(TEALATEX_DIR."/tex").";".
+                "cd ".$escapedOutDir.";".
                 "/usr/bin/env TEXMFOUTPUT=".
-                escapeshellarg(TEALATEX_DIR."/tex")." ".
+                $escapedOutDir." ".
                 self::LATEX_BIN.
                 " -output-directory ".
-                escapeshellarg(TEALATEX_DIR."/tex").
+                $escapedOutDir.
                 " -shell-escape ".
                 escapeshellarg($this->texFile).
                 " < /dev/null");
@@ -136,9 +137,16 @@ final class TeaLatex
     {
         $ret = file_exists(TEALATEX_DIR."/pdf/".$this->hash.".pdf");
         if (!$ret) {
+            $escapedOutDir = escapeshellarg(TEALATEX_DIR."/tex");
             shell_exec(
-                "cd ".escapeshellarg(TEALATEX_DIR."/tex")."; ".
-                self::PDFLATEX_BIN." ".escapeshellarg($this->texFile).
+                "cd ".$escapedOutDir.";".
+                "/usr/bin/env TEXMFOUTPUT=".
+                $escapedOutDir." ".
+                self::PDFLATEX_BIN.
+                " -output-directory ".
+                $escapedOutDir.
+                " -shell-escape ".
+                escapeshellarg($this->texFile).
                 " < /dev/null");
             if (file_exists(TEALATEX_DIR."/tex/".$this->hash.".pdf")) {
                 rename(
@@ -220,3 +228,4 @@ final class TeaLatex
         return $pngHash;
     }
 }
+
