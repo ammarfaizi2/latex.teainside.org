@@ -162,6 +162,16 @@ $initText =
         </div>
     </div>
 <script type="text/javascript"><?php ob_start(); ?>
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+          };  
+          return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
         function gid(id){return document.getElementById(id);}
         const fcontent = 0, fd = 1, fborder = 2, fbcolor = 3, flast = 4;
         let compiling = gid("compiling"),
@@ -226,7 +236,7 @@ $initText =
             for (i in saved_works) {
                 r += '<tr class="saved_file_row">'
                  +'<td>'+(j++)+'</td>'
-                 +'<td>'+i+'</td>'
+                 +'<td>'+escapeHtml(i)+'</td>'
                  +'<td>'+saved_works[i][fcontent].length+'</td>'
                  +'<td>'+saved_works[i][flast]+'</td>'
                  +'<td><button type="button" onclick="ropen_file(\''
