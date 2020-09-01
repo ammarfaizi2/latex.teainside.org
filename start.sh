@@ -14,6 +14,6 @@ cp -vf /opt/works/etc/php/7.4/fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf;
 cp -vf /opt/works/etc/php/7.4/fpm/pool.d/www.conf /etc/php/7.4/fpm/pool.d/www.conf;
 /usr/sbin/php-fpm7.4 --daemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf &
 
-apt install -y texlive texlive-base;
+apt-fast install -y texlive texlive-base;
 
 wait
