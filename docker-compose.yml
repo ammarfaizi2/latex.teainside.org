@@ -1,10 +1,10 @@
 version: '3'
 services:
   main:
-    hostname: 003-icetea
+    hostname: 004-latex
     build: .
-    image: 003_icetea:001
-    container_name: 003_icetea
+    image: 004_latex:001
+    container_name: 004_latex
     volumes:
       - ./works:/opt/works
     networks:
