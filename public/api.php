@@ -43,7 +43,7 @@ if (isset($_GET["action"])) {
                 $json["bcolor"] = "white";
             }
     
-            $st = new \TeaLatex\TeaLatex($json["content"]);
+            $st = new \TeaLatex\TeaLatex($json["content"], true);
             if (!$st->save()) {
                 $res = "Error when saving tex file!";
                 goto ret;
