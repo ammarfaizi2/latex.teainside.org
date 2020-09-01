@@ -7,12 +7,10 @@ services:
     container_name: 003_icetea
     volumes:
       - ./works:/opt/works
-      - /opt/php7.4.10:/opt/php7.4.10
     networks:
-      eth200:
+      eth8:
         ipv4_address: 192.168.187.11
 
 networks:
-  eth200:
+  eth8:
     external: true
-
