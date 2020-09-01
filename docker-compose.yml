@@ -8,9 +8,9 @@ services:
     volumes:
       - ./works:/opt/works
     networks:
-      eth8:
-        ipv4_address: 192.168.187.11
+      eth200:
+        ipv4_address: 192.168.200.3
 
 networks:
-  eth8:
+  eth200:
     external: true
