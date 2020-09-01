@@ -10,8 +10,10 @@ cp -vf /opt/works/etc/ssh/sshd_config /etc/ssh/sshd_config;
 exec /usr/sbin/sshd -D &
 
 # Run PHP.
-rm -rfv /etc/php;
-ln -sfv /opt/works/etc/php /etc/php;
-/usr/local/sbin/php-fpm -y /etc/php/7.4/fpm/php-fpm.conf --daemonize -R &
+cp -vf /opt/works/etc/php/7.4/fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf;
+cp -vf /opt/works/etc/php/7.4/fpm/pool.d/www.conf /etc/php/7.4/fpm/pool.d/www.conf;
+/usr/sbin/php-fpm7.4 --daemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf &
+
+apt install -y texlive texlive-base;
 
 wait
