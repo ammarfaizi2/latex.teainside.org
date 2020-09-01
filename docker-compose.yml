@@ -9,7 +9,7 @@ services:
       - ./works:/opt/works
     networks:
       eth200:
-        ipv4_address: 192.168.200.3
+        ipv4_address: 192.168.200.4
 
 networks:
   eth200:
