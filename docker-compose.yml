@@ -1,0 +1,18 @@
+version: '3'
+services:
+  main:
+    hostname: 003-icetea
+    build: .
+    image: 003_icetea:001
+    container_name: 003_icetea
+    volumes:
+      - ./works:/opt/works
+      - /opt/php7.4.10:/opt/php7.4.10
+    networks:
+      eth200:
+        ipv4_address: 192.168.187.11
+
+networks:
+  eth200:
+    external: true
+
