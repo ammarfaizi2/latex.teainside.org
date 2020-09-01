@@ -1,3 +1,4 @@
+
 version: '3'
 services:
   main:
@@ -7,6 +8,7 @@ services:
     container_name: 004_latex
     volumes:
       - ./works:/opt/works
+      - ./:/var/www/latex.teainside.org
     networks:
       eth200:
         ipv4_address: 192.168.200.4
