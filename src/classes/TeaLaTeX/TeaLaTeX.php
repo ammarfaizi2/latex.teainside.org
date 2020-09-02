@@ -141,6 +141,7 @@ class TeaLaTeX
       $this->compileRelDir = $this->compileDir = $this->latexDir."/tex";
     }
 
+    is_dir($this->latexDir) or mkdir($this->latexDir);
     is_dir($this->compileDir) or mkdir($this->compileDir);
     is_dir($this->saveDir["tex"]) or mkdir($this->saveDir["tex"]);
     is_dir($this->saveDir["png"]) or mkdir($this->saveDir["png"]);
