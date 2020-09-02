@@ -20,6 +20,7 @@ exec /usr/sbin/sshd -D &
 /usr/bin/git clone https://github.com/ioi/isolate /root/isolate &&
 cd /root/isolate &&
 /usr/bin/make;
+/usr/bin/sed -i 's/CFLAGS=-std=gnu99/CFLAGS=-O3 -std=gnu99/g' /root/isolate/Makefile;
 /usr/bin/sed -i '/num_boxes = 1000/c\num_boxes = 69000' /root/isolate/default.cf;
 /usr/bin/make install;
 )
