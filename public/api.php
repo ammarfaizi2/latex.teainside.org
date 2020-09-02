@@ -1,6 +1,6 @@
 <?php
 
-if (!defined(OPCACHE_PRELOAD)) {
+if (!defined("OPCACHE_PRELOAD")) {
   require_once __DIR__."/../config.php";
   require_once __DIR__."/../src/autoload.php";
 }
