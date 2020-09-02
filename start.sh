@@ -32,7 +32,10 @@ cd /root/isolate &&
 /bin/chmod -v  u=rx,g=,o= $(/bin/find /var/www/latex.teainside.org -type d);
 /bin/chmod -v  u=rwx,g=,o= /var/www/latex.teainside.org/storage/latex;
 
+/usr/local/bin/isolate --box-id 6969 --cleanup;
+/usr/local/bin/isolate --box-id 6969 --init;
+/bin/chmod -vR u=rwx,g=rwx,o=rwx /var/local/lib/isolate/6969;
+
 /usr/local/sbin/apt-fast install -y texlive-full;
 
 wait
-
