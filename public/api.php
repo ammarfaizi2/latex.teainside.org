@@ -1,7 +1,9 @@
 <?php
 
-require __DIR__."/../config.php";
-require __DIR__."/../src/autoload.php";
+if (!defined(OPCACHE_PRELOAD)) {
+  require_once __DIR__."/../config.php";
+  require_once __DIR__."/../src/autoload.php";
+}
 
 header("Content-Type: application/json");
 
