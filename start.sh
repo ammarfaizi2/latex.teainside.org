@@ -27,14 +27,16 @@ cd /root/isolate &&
 
 /usr/bin/sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/g' /etc/ImageMagick-6/policy.xml;
 
-/bin/chown -vR nobody:nogroup /var/www/latex.teainside.org;
-/bin/chmod -vR u=r,g=,o= /var/www/latex.teainside.org;
-/bin/chmod -v  u=rx,g=,o= $(/bin/find /var/www/latex.teainside.org -type d);
-/bin/chmod -v  u=rwx,g=,o= /var/www/latex.teainside.org/storage/latex;
+/bin/chown -vR nobody:nogroup -- /var/www/latex.teainside.org;
+/bin/chmod -vR u=r,g=,o= -- /var/www/latex.teainside.org;
+/bin/chmod -v  u=rx,g=,o= -- $(/bin/find /var/www/latex.teainside.org -type d);
+/bin/chmod -v  u=rwx,g=,o= -- $(/bin/find /var/www/latex.teainside.org/storage/latex -type d);
 
-/usr/local/bin/isolate --box-id 6969 --cleanup;
-/usr/local/bin/isolate --box-id 6969 --init;
-/bin/chmod -vR u=rwx,g=rwx,o=rwx /var/local/lib/isolate/6969;
+sudo -u nobody /usr/local/bin/isolate --box-id 6969 --cleanup;
+sudo -u nobody /usr/local/bin/isolate --box-id 6969 --init;
+/bin/chown -vR nobody:invalid -- /var/local/lib/isolate/6969;
+/bin/chmod -vR u=rwx,g=rwx,o= -- /var/local/lib/isolate/6969;
+
 
 /usr/local/sbin/apt-fast install -y texlive-full;
 
