@@ -103,6 +103,11 @@ class TeaLaTeX
   private $shCompileOut;
 
   /**
+   * @var bool
+   */
+  private $ioiInit = false;
+
+  /**
    * Constructor.
    *
    * @param string $content
@@ -131,10 +136,7 @@ class TeaLaTeX
       $this->compileRelDir = "/box/tex";
       $this->isolateCmd    = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=131072 --cg-timing --time=3 --wall-time=3 --extra-time=5 --mem=131072 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
 
-      if (!is_dir($this->isolateDir)) {
-        shell_exec("exec {$this->isolateCmd} --init >> /dev/null 2>&1");
-      }
-
+      $this->isolateInit();
     } else {
       $this->compileRelDir = $this->compileDir = $this->latexDir."/tex";
     }
@@ -154,8 +156,20 @@ class TeaLaTeX
    */
   public function __destruct()
   {
-    if ($this->useIsolate && file_exists($this->file)) {
-      
+    @unlink($this->texFile);
+    @unlink($this->dviFile);
+    @unlink($this->logFile);
+    @unlink($this->auxFile);
+  }
+
+  /**
+   * @return void
+   */
+  private function isolateInit(): void
+  {
+    if ((!$this->ioiInit) && (!is_dir($this->isolateDir))) {
+      $this->ioiInit = true;
+      shell_exec("exec {$this->isolateCmd} --init");
     }
   }
 
@@ -163,12 +177,12 @@ class TeaLaTeX
    * @return bool
    */
   public function putTexFile(): bool
-  {    
-    if (!$ret = file_exists($this->texFile)) {
-      file_put_contents($this->texFile, $this->content);
-      return file_exists($this->texFile);
+  {
+    if (file_exists($this->texFile)) {
+      return true;
     }
-    return true;
+
+    return (bool)file_put_contents($this->texFile, $this->content);
   }
 
   /**
@@ -180,18 +194,27 @@ class TeaLaTeX
       return true;
     }
 
-    $compileDir = escapeshellarg($this->compileRelDir);
+    $escCompileDir = escapeshellarg($this->compileRelDir);
+    $texFileName   = "{$this->hash}.tex";
+    $realTexFile   = "{$this->compileDir}/{$texFileName}";
+    $texFile       = "{$this->compileRelDir}/{$texFileName}";
 
     $cmd =
-      "/usr/bin/env TEXMFOUTPUT={$compileDir} "
-      .self::LATEX_BIN." -output-directory {$compileDir}"
-      ." -shell-escape ".escapeshellarg($this->texFile)." < /dev/null";
+      "/usr/bin/env TEXMFOUTPUT={$escCompileDir} "
+      .self::LATEX_BIN." -output-directory {$escCompileDir}"
+      ." -shell-escape ".escapeshellarg($texFile)." < /dev/null";
 
     if ($this->useIsolate) {
-      $cmd = "{$this->isolateCmd} --chdir {$compileDir} --run -- ".$cmd;
+      $cmd = "{$this->isolateCmd} --chdir {$escCompileDir} --run -- {$cmd}";
     }
 
-    $this->shCompileOut = shell_exec($cmd." 2>&1");
+    $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
+
+    $targetCompFile = "{$this->saveDir["tex"]}/{$texFileName}.gz";
+
+    if (!file_exists($targetCompFile)) {
+      file_put_contents($targetCompFile, gzencode($this->content, 9));
+    }
 
     return file_exists($this->dviFile);
   }
@@ -203,8 +226,159 @@ class TeaLaTeX
   {
     return (string) (
       file_exists($this->logFile)
-      ? file_get_contents($this->logFile)
+      ? @file_get_contents($this->logFile)
       : $this->shCompileOut
     );
+  }
+
+  /**
+   * @param  int     $d
+   * @param  ?string $border
+   * @param  ?string $bColor
+   * @return ?string
+   */
+  public function convertToPng(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
+  {
+    $pngHash    = sha1($this->hash.$d.$border.$bColor);
+    $targetSave = "{$this->saveDir["png"]}/{$pngHash}.png";
+
+    if (file_exists($targetSave)) {
+      return $pngHash;
+    }
+
+    @unlink($this->logFile);
+    $escCompileDir = escapeshellarg($this->compileRelDir);
+    $pngFileName   = "{$pngHash}.png";
+    $realPngFile   = "{$this->compileDir}/{$pngFileName}";
+    $pngFile       = "{$this->compileRelDir}/{$pngFileName}";
+
+    $cmd = 
+      self::DVIPNG_BIN." -q -T tight -D {$d} "
+      .escapeshellarg($this->dviFile)." -o "
+      .escapeshellarg($pngFile);
+
+    if ($this->useIsolate) {
+      $cmd = "{$this->isolateCmd} --chdir {$escCompileDir} --run -- {$cmd}";
+    }
+
+    $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
+
+
+    if (!file_exists($realPngFile)) {
+      return null;
+    }
+
+
+    if (!empty($border)) {
+      $cmd =
+        self::CONVERT_BIN." {$pngFile} "
+        ."-fuzz 10% -trim +repage -bordercolor "
+        .escapeshellarg($bColor)." -border "
+        .escapeshellarg($border)." {$pngFile}";
+
+      if ($this->useIsolate) {
+        $cmd = "{$this->isolateCmd} --chdir {$escCompileDir} --run -- {$cmd}";
+      }
+
+      $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
+    }
+
+    if (!file_exists($realPngFile)) {
+      return null;
+    }
+
+    rename($realPngFile, $targetSave);
+
+    return file_exists($targetSave) ? $pngHash : null;
+  }
+
+  /**
+   * @param bool $dontRename
+   * @return ?string
+   */
+  public function convertToPdf(bool $dontRename = false): ?string
+  {
+    $pdfFile    = "{$this->compileRelDir}/{$this->hash}.pdf";
+    $targetSave = "{$this->saveDir["pdf"]}/{$this->hash}.pdf";
+
+    if (file_exists($targetSave)) {
+      return $this->hash;
+    }
+
+    @unlink($this->logFile);
+    $escCompileDir = escapeshellarg($this->compileRelDir);
+    $pdfFileName   = "{$this->hash}.pdf";
+    $realPdfFile   = "{$this->compileDir}/{$pdfFileName}";
+    $pdfFile       = "{$this->compileRelDir}/{$pdfFileName}";
+
+    $cmd = 
+      "/usr/bin/env TEXMFOUTPUT={$escCompileDir} "
+      .self::PDFLATEX_BIN." -output-directory {$escCompileDir} "
+      ."-shell-escape ".escapeshellarg($this->texFile)." < /dev/null";
+
+    if ($this->useIsolate) {
+      $cmd = "{$this->isolateCmd} --chdir {$escCompileDir} --run -- {$cmd}";
+    }
+
+    $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
+
+    if (!file_exists($realPdfFile)) {
+      return null;
+    }
+
+    /* Private use only, don't use outside of the class. */
+    if ($dontRename) {
+      return $realPdfFile;
+    }
+
+    rename($realPdfFile, $targetSave);
+    return file_exists($targetSave) ? $this->hash : null;
+  }
+
+  /**
+     * @param int $d
+     * @param ?string $border
+     * @return ?string
+     */
+  public function convertPngNoOp(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
+  {
+    $pngHash    = sha1($this->hash.$d.$border.$bColor."no_op");
+    $targetSave = "{$this->saveDir["png"]}/{$pngHash}.png";
+
+    if (file_exists($targetSave)) {
+      return $pngHash;
+    }
+
+    @unlink($this->logFile);
+    $escCompileDir = escapeshellarg($this->compileRelDir);
+    $pngFileName   = "{$pngHash}.png";
+    $realPngFile   = "{$this->compileDir}/{$pngFileName}";
+    $pngFile       = "{$this->compileRelDir}/{$pngFileName}";
+
+    $pdfFile = $this->convertToPdf(true);
+    $cmd =
+      self::CONVERT_BIN
+      ." -trim -density {$d} ".escapeshellarg($pdfFile)
+      ." -fuzz 10%"
+      ." +repage"
+      .(!empty($bColor) ? " -bordercolor ".escapeshellarg($bColor) : "")
+      .(!empty($border) ? " -border ".escapeshellarg($border) : "")
+      ." -quality 100 "
+      ." +profile \"*\" ".escapeshellarg($pngFile);
+
+    if ($this->useIsolate) {
+      $cmd = "{$this->isolateCmd} --processes=4 --chdir {$escCompileDir} --run -- {$cmd}";
+    }
+
+    $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
+
+    if (!file_exists($realPngFile)) {
+      return null;
+    }
+
+    rename($realPngFile, $targetSave);
+    rename($pdfFile, "{$this->saveDir["pdf"]}/{$this->hash}.pdf");
+
+    return file_exists($targetSave) ? $pngHash : null;
   }
 }
