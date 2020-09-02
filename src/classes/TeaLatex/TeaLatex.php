@@ -179,9 +179,9 @@ final class TeaLatex
                     " -shell-escape ".
                     escapeshellarg($this->texFile).
                     " < /dev/null";
-                $ret = file_exists($this->dviFile);
             }
 
+            $ret = file_exists($this->dviFile);
             shell_exec($cmd);
         }
 
