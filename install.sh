@@ -23,7 +23,7 @@ apt-get install curl sudo wget -y \
 /bin/bash -c "$(curl -sL https://git.io/vokNn)" \
 && \
 apt-fast install -y \
-php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-opcache ssh htop make git gcc g++ make dvipng imagemagick libcap-dev texlive texlive-base \
+php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-opcache ssh htop make git gcc g++ make dvipng imagemagick libcap-dev texlive texlive-base vim \
 && \
 mkdir -v /root/.ssh \
 && \
