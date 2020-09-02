@@ -298,16 +298,21 @@ class TeaLaTeX
    */
   public function convertToPdf(bool $dontRename = false): ?string
   {
-    $pdfFile    = "{$this->compileRelDir}/{$this->hash}.pdf";
-    $targetSave = "{$this->saveDir["pdf"]}/{$this->hash}.pdf";
+    $pdfFile     = "{$this->compileRelDir}/{$this->hash}.pdf";
+    $targetSave  = "{$this->saveDir["pdf"]}/{$this->hash}.pdf";
+    $pdfFileName = "{$this->hash}.pdf";
 
     if (file_exists($targetSave)) {
-      return $this->hash;
+      if ($dontRename) {
+        @rename($targetSave, "{$this->compileDir}/{$pdfFileName}");
+        return "{$this->compileDir}/{$pdfFileName}";
+      } else {
+        return $this->hash;
+      }
     }
 
     @unlink($this->logFile);
     $escCompileDir = escapeshellarg($this->compileRelDir);
-    $pdfFileName   = "{$this->hash}.pdf";
     $realPdfFile   = "{$this->compileDir}/{$pdfFileName}";
     $pdfFile       = "{$this->compileRelDir}/{$pdfFileName}";
 
