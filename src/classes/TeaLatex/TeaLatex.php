@@ -181,8 +181,8 @@ final class TeaLatex
                     " < /dev/null";
             }
 
-            $ret = file_exists($this->dviFile);
             shell_exec($cmd);
+            $ret = file_exists($this->dviFile);
         }
 
         if (!$ret) {
