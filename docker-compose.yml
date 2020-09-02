@@ -2,6 +2,7 @@
 version: '3'
 services:
   main:
+    privileged: true
     hostname: 004-latex
     build: .
     image: 004_latex:001
