@@ -32,8 +32,8 @@ cd /root/isolate &&
 /bin/chmod -v  u=rx,g=,o= -- $(/bin/find /var/www/latex.teainside.org -type d);
 /bin/chmod -v  u=rwx,g=,o= -- $(/bin/find /var/www/latex.teainside.org/storage/latex -type d);
 
-sudo -u nobody /usr/local/bin/isolate --box-id 6969 --cleanup;
-sudo -u nobody /usr/local/bin/isolate --box-id 6969 --init;
+/usr/bin/sudo -u nobody /usr/local/bin/isolate --box-id 6969 --cleanup;
+/usr/bin/sudo -u nobody /usr/local/bin/isolate --box-id 6969 --init;
 /bin/chown -vR nobody:invalid -- /var/local/lib/isolate/6969;
 /bin/chmod -vR u=rwx,g=rwx,o= -- /var/local/lib/isolate/6969;
 
