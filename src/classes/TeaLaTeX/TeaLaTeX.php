@@ -269,7 +269,6 @@ class TeaLaTeX
       return null;
     }
 
-
     if (!empty($border)) {
       $cmd =
         self::CONVERT_BIN." {$pngFile} "
@@ -278,7 +277,7 @@ class TeaLaTeX
         .escapeshellarg($border)." {$pngFile}";
 
       if ($this->useIsolate) {
-        $cmd = "{$this->isolateCmd} --chdir {$escCompileDir} --run -- {$cmd}";
+        $cmd = "{$this->isolateCmd} --processes=4 --chdir {$escCompileDir} --run -- {$cmd}";
       }
 
       $this->shCompileOut = shell_exec("exec {$cmd} 2>&1");
