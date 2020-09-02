@@ -204,19 +204,38 @@ final class TeaLatex
             if ($this->useIsolate) {
                 $escapedOutDir = escapeshellarg($this->latexIsolateDir."/tex");
                 $cmd =
-                    
+                    $this->isolateCmd.
+                    " --run -- /bin/bash -c ".
+                    escapeshellarg(
+                        "cd ".$escapedOutDir.";".
+                        "/usr/bin/env TEXMFOUTPUT=".
+                        $escapedOutDir." ".
+                        self::PDFLATEX_BIN.
+                        " -output-directory ".
+                        $escapedOutDir.
+                        " -shell-escape ".
+                        escapeshellarg(
+                            $this->latexIsolateDir."/tex/".basename($this->texFile)
+                        ).
+                        " < /dev/null"
+                    );
+            } else {
+                $escapedOutDir = escapeshellarg($this->latexDir."/tex");
+                $cmd =
+                    "cd ".$escapedOutDir.";".
+                    "/usr/bin/env TEXMFOUTPUT=".
+                    $escapedOutDir." ".
+                    self::PDFLATEX_BIN.
+                    " -output-directory ".
+                    $escapedOutDir.
+                    " -shell-escape ".
+                    escapeshellarg($this->texFile).
+                    " < /dev/null";
+            }
 
-            $escapedOutDir = escapeshellarg($this->latexDir."/tex");
-            shell_exec(
-                "cd ".$escapedOutDir.";".
-                "/usr/bin/env TEXMFOUTPUT=".
-                $escapedOutDir." ".
-                self::PDFLATEX_BIN.
-                " -output-directory ".
-                $escapedOutDir.
-                " -shell-escape ".
-                escapeshellarg($this->texFile).
-                " < /dev/null");
+            shell_exec($cmd);
+
+            
             if (file_exists($this->latexDir."/tex/".$this->hash.".pdf")) {
                 rename(
                     $this->latexDir."/tex/".$this->hash.".pdf",
