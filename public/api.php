@@ -102,15 +102,18 @@ if (isset($_GET["action"])) {
       }
   
       $st = new \TeaLaTeX\TeaLaTeX($json["content"], $useIsolate);
-      if (!$st->save()) {
-        $res = "Error when saving tex file!";
+
+      if (!$st->putTexFile()) {
+        $res = "Error when writing the tex file!";
         goto ret;
       }
-      if (!$st->compile()) {
-        $res = "Error when compiling tex file";
+
+      if (!$st->latexCompile()) {
+        $res = "Error when compiling the tex file";
         $log = $st->getCompileLog();
         goto ret;
       }
+
       if ($_GET["action"] === "tex2png_no_op") {
         if (!($res = $st->convertPngNoOp($json["d"], $json["border"], $json["bcolor"]))) {
           $res = "Error when converting to png!";
@@ -122,6 +125,7 @@ if (isset($_GET["action"])) {
           goto ret;
         }
       }
+
       $status = "success";
       break;
     

@@ -87,7 +87,7 @@ final class TeaLatex
 
             $this->latexIsolateDir = "/box/latex";
 
-            $this->isolateCmd = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=512000 --cg-timing --time=300 --wall-time=300 --extra-time=310 --mem=512000 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
+            $this->isolateCmd = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=131072 --cg-timing --time=10 --wall-time=10 --extra-time=10 --mem=131072 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
 
             if (!is_dir("/var/local/lib/isolate/6969/box")) {
                 shell_exec($this->isolateCmd." --init");
@@ -152,21 +152,13 @@ final class TeaLatex
             if ($this->useIsolate) {
                 $escapedOutDir = escapeshellarg($this->latexIsolateDir."/tex");
                 $cmd =
-                    $this->isolateCmd.
-                    " --run -- /bin/bash -c ".
-                    escapeshellarg(
-                        "cd ".$escapedOutDir.";".
-                        "/usr/bin/env TEXMFOUTPUT=".
-                        $escapedOutDir." ".
-                        self::LATEX_BIN.
-                        " -output-directory ".
-                        $escapedOutDir.
-                        " -shell-escape ".
-                        escapeshellarg(
-                            $this->latexIsolateDir."/tex/".basename($this->texFile)
-                        ).
-                        " < /dev/null"
-                    );
+                    $this->isolateCmd
+                    ." --chdir {$escapedOutDir} --run --"
+                    ." /usr/bin/env TEXMFOUTPUT={$escapedOutDir}"
+                    ." ".self::LATEX_BIN
+                    ." -output-directory {$escapedOutDir}"
+                    ." -shell-escape"
+                    ." ".escapeshellarg($this->latexIsolateDir."/tex/".basename($this->texFile))." < /dev/null";
             } else {
                 $escapedOutDir = escapeshellarg($this->latexDir."/tex");
                 $cmd =
@@ -204,21 +196,13 @@ final class TeaLatex
             if ($this->useIsolate) {
                 $escapedOutDir = escapeshellarg($this->latexIsolateDir."/tex");
                 $cmd =
-                    $this->isolateCmd.
-                    " --run -- /bin/bash -c ".
-                    escapeshellarg(
-                        "cd ".$escapedOutDir.";".
-                        "/usr/bin/env TEXMFOUTPUT=".
-                        $escapedOutDir." ".
-                        self::PDFLATEX_BIN.
-                        " -output-directory ".
-                        $escapedOutDir.
-                        " -shell-escape ".
-                        escapeshellarg(
-                            $this->latexIsolateDir."/tex/".basename($this->texFile)
-                        ).
-                        " < /dev/null"
-                    );
+                    $this->isolateCmd
+                    ." --chdir {$escapedOutDir} --run --"
+                    ." /usr/bin/env TEXMFOUTPUT={$escapedOutDir} "
+                    ." ".self::PDFLATEX_BIN
+                    ." -output-directory {$escapedOutDir} "
+                    ." -shell-escape"
+                    ." ".escapeshellarg($this->latexIsolateDir."/tex/".basename($this->texFile))." < /dev/null";
             } else {
                 $escapedOutDir = escapeshellarg($this->latexDir."/tex");
                 $cmd =
@@ -306,7 +290,8 @@ final class TeaLatex
             " +repage".
             " -bordercolor ".escapeshellarg($bColor).
             " -border ".escapeshellarg($border).
-            " -quality 90 ".escapeshellarg($pngFile)
+            " -quality 100 ".
+            " +profile \"*\" ".escapeshellarg($pngFile)
         );
 
         if (!file_exists($pngFile)) {
