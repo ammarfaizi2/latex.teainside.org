@@ -134,7 +134,7 @@ class TeaLaTeX
       $this->isolateDir    = "/var/local/lib/isolate/6969";
       $this->compileDir    = "{$this->isolateDir}/box/tex";
       $this->compileRelDir = "/box/tex";
-      $this->isolateCmd    = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=131072 --cg-timing --time=3 --wall-time=3 --extra-time=5 --mem=131072 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
+      $this->isolateCmd    = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=131072 --cg-timing --time=3 --wall-time=3 --extra-time=5 --mem=131072 --processes=3 --fsize=8192 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
 
       $this->isolateInit();
     } else {
