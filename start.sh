@@ -26,6 +26,11 @@ cd /root/isolate &&
 
 /usr/bin/sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/g' /etc/ImageMagick-6/policy.xml;
 
+/bin/chown -vR nobody:nogroup /var/www/latex.teainside.org
+/bin/chmod -vR u=r,g=,o= /var/www/latex.teainside.org
+/bin/chmod -v  u=rx,g=,o= $(/bin/find /var/www/latex.teainside.org -type d)
+
 /usr/local/sbin/apt-fast install -y texlive-full;
 
 wait
+
