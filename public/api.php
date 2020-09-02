@@ -14,6 +14,7 @@ $log = [];
 $status = "error";
 $res = "no_action";
 $useIsolate = true;
+
 if (isset($_GET["action"])) {
   switch ($_GET["action"]) {
     case "file":
@@ -38,6 +39,24 @@ if (isset($_GET["action"])) {
         exit;
       }
 
+      date_default_timezone_set("UTC");
+
+      if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+        $ifModifiedSince = explode(";", $_SERVER['HTTP_IF_MODIFIED_SINCE'])[0];
+      } else {
+        $ifModifiedSince = "";
+      }
+
+      $mtime = filemtime($targetFile);
+      $gmdateMod = date("D, d M Y H:i:s", $mtime)." GMT";
+
+      if ($ifModifiedSince === $gmdateMod) {
+        http_response_code(304);
+        exit;
+      }
+
+      header("Expires: 31536000");
+      header("Last-Modified: ".$gmdateMod);
       header("Content-Type: ".CONTENT_TYPE_MAP[$_GET["type"]]);
       header("Content-Disposition: inline; filename=\"{$filename}\"");
       header("Content-Length: ".filesize($targetFile));
