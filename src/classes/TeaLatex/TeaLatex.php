@@ -87,7 +87,7 @@ final class TeaLatex
 
             $this->latexIsolateDir = "/box/latex";
 
-            $this->isolateCmd = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=512000 --cg-timing --time=300 --wall-time=300 --extra-time=310 --mem=512000 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
+            $this->isolateCmd = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=512000 --cg-timing --time=300 --wall-time=300 --extra-time=310 --mem=512000 --processes=4 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
 
             if (!is_dir("/var/local/lib/isolate/6969/box")) {
                 shell_exec($this->isolateCmd." --init");
