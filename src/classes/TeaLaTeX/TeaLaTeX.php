@@ -108,6 +108,11 @@ class TeaLaTeX
   private $ioiInit = false;
 
   /**
+   * @var string
+   */
+  private $counterFile;
+
+  /**
    * Constructor.
    *
    * @param string $content
@@ -115,10 +120,10 @@ class TeaLaTeX
    */
   public function __construct(string $content, bool $useIsolate = false)
   {
-    $this->content     = $content;
-    $this->hash        = sha1($content);
-    $this->useIsolate  = $useIsolate;
-    $this->latexDir    = TEALATEX_DIR;
+    $this->content      = $content;
+    $this->hash         = sha1($content);
+    $this->useIsolate   = $useIsolate;
+    $this->latexDir     = TEALATEX_DIR;
 
     $this->saveDir = [
       "tex" => "{$this->latexDir}/tex",
@@ -134,9 +139,11 @@ class TeaLaTeX
       $this->isolateDir    = "/var/local/lib/isolate/6969";
       $this->compileDir    = "{$this->isolateDir}/box/tex";
       $this->compileRelDir = "/box/tex";
+      $this->counterFile   = "{$this->latexDir}/ct";
       $this->isolateCmd    = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=131072 --cg-timing --time=3 --wall-time=3 --extra-time=5 --mem=131072 --processes=3 --fsize=8192 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
 
       $this->isolateInit();
+
     } else {
       $this->compileRelDir = $this->compileDir = $this->latexDir."/tex";
     }
@@ -161,6 +168,32 @@ class TeaLaTeX
     @unlink($this->dviFile);
     @unlink($this->logFile);
     @unlink($this->auxFile);
+
+    if ($this->useIsolate) {
+      if (file_exists($this->counterFile)) {
+        $handle  = fopen($this->counterFile, "r+");
+        flock($handle, LOCK_EX);
+        $counter = (int)fread($handle, 10);
+        rewind($handle);
+
+        if ($counter >= 20) {
+          $counter = 0;
+          shell_exec("exec /usr/local/bin/isolate --box-id 6969 --cleanup");
+        }
+
+        fwrite($handle, (string)(++$counter));
+
+      } else {
+        $handle  = fopen($this->counterFile, "w");
+        flock($handle, LOCK_EX);
+        $counter = 1;
+        fwrite($handle, "1");
+      }
+
+
+      flock($handle, LOCK_UN);
+      fclose($handle);
+    }
   }
 
   /**
