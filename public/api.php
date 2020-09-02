@@ -101,27 +101,37 @@ if (isset($_GET["action"])) {
         $json["bcolor"] = "white";
       }
   
-      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
-      if (!$st->save()) {
-        $res = "Error when saving tex file!";
+      $st = new \TeaLaTeX\TeaLaTeX($json["content"], $useIsolate);
+
+      if (!$st->putTexFile()) {
+        $res = "Error when writing the tex file!";
         goto ret;
       }
-      if (!$st->compile()) {
-        $res = "Error when compiling tex file";
+
+      if (!$st->latexCompile()) {
+        $res = "Error when compiling the tex file";
         $log = $st->getCompileLog();
         goto ret;
       }
+
       if ($_GET["action"] === "tex2png_no_op") {
-        if (!($res = $st->convertPngNoOp($json["d"], $json["border"], $json["bcolor"]))) {
+
+        $res = $st->convertPngNoOp($json["d"], $json["border"], $json["bcolor"]);
+        if (!$res) {
           $res = "Error when converting to png!";
           goto ret;
         }
+
       } else {
-        if (!($res = $st->convertPng($json["d"], $json["border"], $json["bcolor"]))) {
+
+        $res = $st->convertToPng($json["d"], $json["border"], $json["bcolor"]);
+        if (!$res) {
           $res = "Error when converting to png!";
           goto ret;
         }
+
       }
+
       $status = "success";
       break;
     
@@ -132,17 +142,19 @@ if (isset($_GET["action"])) {
         goto ret;
       }
 
-      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
-      if (!$st->save()) {
-        $res
-         = "Error when saving tex file!";
+      $st = new \TeaLaTeX\TeaLaTeX($json["content"], $useIsolate);
+      if (!$st->putTexFile()) {
+        $res = "Error when saving the tex file!";
         goto ret;
       }
-      if (!($res = $st->convertPdf())) {
-        $res = "Error when compiling tex file";
+
+      $res = $st->convertToPdf();
+      if (!$res) {
+        $res = "Error when compiling the tex file";
         $log = $st->getCompileLog();
         goto ret;
       }
+
       $status = "success";
       break;
 
