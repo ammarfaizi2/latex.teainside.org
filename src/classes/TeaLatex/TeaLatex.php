@@ -53,21 +53,60 @@ final class TeaLatex
     private $auxFile;
 
     /**
+     * @var bool
+     */
+    private $useIsolate;
+
+    /**
+     * @var string
+     */
+    private $isolateCmd;
+
+    /**
+     * @var string
+     */
+    private $latexIsolateDir;
+
+    /**
      * Constructor.
      *
      * @param string $content
+     * @param bool   $useIsolate
      */
-    public function __construct(string $content)
+    public function __construct(string $content, bool $useIsolate = false)
     {
         $this->content = $content;
         $this->hash = sha1($content);
-        $this->auxFile = TEALATEX_DIR."/tex/".$this->hash.".aux";
-        $this->logFile = TEALATEX_DIR."/tex/".$this->hash.".log";
-        $this->dviFile = TEALATEX_DIR."/tex/".$this->hash.".dvi";
-        $this->texFile = TEALATEX_DIR."/tex/".$this->hash.".tex";
-        is_dir(TEALATEX_DIR."/png") or mkdir(TEALATEX_DIR."/png");
-        is_dir(TEALATEX_DIR."/tex") or mkdir(TEALATEX_DIR."/tex");
-        is_dir(TEALATEX_DIR."/pdf") or mkdir(TEALATEX_DIR."/pdf");
+
+        if ($useIsolate) {
+            $this->latexDir = "/var/local/lib/isolate/6969/box/latex";
+            /*
+               Add "invalid:x:66969:invalid" to /etc/group
+               Add "invalid:x:66969:66969:Invalid,,,:/box/latex:/bin/bash" to /etc/passwd.
+            */
+
+            $this->latexIsolateDir = "/box/latex";
+
+            $this->isolateCmd = "/usr/local/bin/isolate --box-id 6969 --cg --cg-mem=512000 --cg-timing --time=300 --wall-time=300 --extra-time=310 --mem=512000 --processes=3 --dir=/usr:maybe --dir=/etc:maybe --dir=/var:maybe --env=PATH=/bin:/usr/bin:/usr/sbin";
+
+            if (!is_dir("/var/local/lib/isolate/6969/box")) {
+                shell_exec($this->isolateCmd." --init");
+            }
+
+        } else {
+            $this->latexDir = TEALATEX_DIR;
+        }
+
+        $this->useIsolate = $useIsolate;
+
+        $this->auxFile = $this->latexDir."/tex/".$this->hash.".aux";
+        $this->logFile = $this->latexDir."/tex/".$this->hash.".log";
+        $this->dviFile = $this->latexDir."/tex/".$this->hash.".dvi";
+        $this->texFile = $this->latexDir."/tex/".$this->hash.".tex";
+        is_dir($this->latexDir) or mkdir($this->latexDir);
+        is_dir($this->latexDir."/png") or mkdir($this->latexDir."/png");
+        is_dir($this->latexDir."/tex") or mkdir($this->latexDir."/tex");
+        is_dir($this->latexDir."/pdf") or mkdir($this->latexDir."/pdf");
     }
 
     /**
@@ -107,18 +146,42 @@ final class TeaLatex
     public function compile(): bool
     {
         $ret = file_exists($this->dviFile);
+
         if (!$ret) {
-            $escapedOutDir = escapeshellarg(TEALATEX_DIR."/tex");
-            shell_exec(
-                "cd ".$escapedOutDir.";".
-                "/usr/bin/env TEXMFOUTPUT=".
-                $escapedOutDir." ".
-                self::LATEX_BIN.
-                " -output-directory ".
-                $escapedOutDir.
-                " -shell-escape ".
-                escapeshellarg($this->texFile).
-                " < /dev/null");
+
+            if ($this->useIsolate) {
+                $escapedOutDir = escapeshellarg($this->latexIsolateDir."/tex");
+                $cmd =
+                    $this->isolateCmd.
+                    " --run -- /bin/bash -c ".
+                    escapeshellarg(
+                        "cd ".$escapedOutDir.";".
+                        "/usr/bin/env TEXMFOUTPUT=".
+                        $escapedOutDir." ".
+                        self::LATEX_BIN.
+                        " -output-directory ".
+                        $escapedOutDir.
+                        " -shell-escape ".
+                        escapeshellarg(
+                            $this->latexIsolateDir."/tex/".basename($this->texFile)
+                        ).
+                        " < /dev/null"
+                    );
+            } else {
+                $escapedOutDir = escapeshellarg($this->latexDir."/tex");
+                $cmd =
+                    "cd ".$escapedOutDir.";".
+                    "/usr/bin/env TEXMFOUTPUT=".
+                    $escapedOutDir." ".
+                    self::LATEX_BIN.
+                    " -output-directory ".
+                    $escapedOutDir.
+                    " -shell-escape ".
+                    escapeshellarg($this->texFile).
+                    " < /dev/null";
+            }
+
+            shell_exec($cmd);
             $ret = file_exists($this->dviFile);
         }
 
@@ -135,25 +198,50 @@ final class TeaLatex
      */
     public function convertPdf(): ?string
     {
-        $ret = file_exists(TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+        $ret = file_exists($this->latexDir."/pdf/".$this->hash.".pdf");
         if (!$ret) {
-            $escapedOutDir = escapeshellarg(TEALATEX_DIR."/tex");
-            shell_exec(
-                "cd ".$escapedOutDir.";".
-                "/usr/bin/env TEXMFOUTPUT=".
-                $escapedOutDir." ".
-                self::PDFLATEX_BIN.
-                " -output-directory ".
-                $escapedOutDir.
-                " -shell-escape ".
-                escapeshellarg($this->texFile).
-                " < /dev/null");
-            if (file_exists(TEALATEX_DIR."/tex/".$this->hash.".pdf")) {
-                rename(
-                    TEALATEX_DIR."/tex/".$this->hash.".pdf",
-                    TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+
+            if ($this->useIsolate) {
+                $escapedOutDir = escapeshellarg($this->latexIsolateDir."/tex");
+                $cmd =
+                    $this->isolateCmd.
+                    " --run -- /bin/bash -c ".
+                    escapeshellarg(
+                        "cd ".$escapedOutDir.";".
+                        "/usr/bin/env TEXMFOUTPUT=".
+                        $escapedOutDir." ".
+                        self::PDFLATEX_BIN.
+                        " -output-directory ".
+                        $escapedOutDir.
+                        " -shell-escape ".
+                        escapeshellarg(
+                            $this->latexIsolateDir."/tex/".basename($this->texFile)
+                        ).
+                        " < /dev/null"
+                    );
+            } else {
+                $escapedOutDir = escapeshellarg($this->latexDir."/tex");
+                $cmd =
+                    "cd ".$escapedOutDir.";".
+                    "/usr/bin/env TEXMFOUTPUT=".
+                    $escapedOutDir." ".
+                    self::PDFLATEX_BIN.
+                    " -output-directory ".
+                    $escapedOutDir.
+                    " -shell-escape ".
+                    escapeshellarg($this->texFile).
+                    " < /dev/null";
             }
-            $ret = file_exists(TEALATEX_DIR."/pdf/".$this->hash.".pdf");
+
+            shell_exec($cmd);
+
+            
+            if (file_exists($this->latexDir."/tex/".$this->hash.".pdf")) {
+                rename(
+                    $this->latexDir."/tex/".$this->hash.".pdf",
+                    $this->latexDir."/pdf/".$this->hash.".pdf");
+            }
+            $ret = file_exists($this->latexDir."/pdf/".$this->hash.".pdf");
         }
 
         if (!$ret) {
@@ -171,7 +259,7 @@ final class TeaLatex
     public function convertPng(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
     {
         $pngHash = sha1($this->hash.$d.$border.$bColor);
-        $pngFile = TEALATEX_DIR."/png/".$pngHash.".png";
+        $pngFile = $this->latexDir."/png/".$pngHash.".png";
 
         shell_exec(
             self::DVIPNG_BIN."  -q -T tight -D ".$d." ".
@@ -203,14 +291,14 @@ final class TeaLatex
     public function convertPngNoOp(int $d = 400, ?string $border = null, ?string $bColor = "white"): ?string
     {
         $pngHash = sha1($this->hash.$d.$border.$bColor."_no_optimization");
-        $pngFile = TEALATEX_DIR."/png/".$pngHash.".png";
+        $pngFile = $this->latexDir."/png/".$pngHash.".png";
         $pdfHash = $this->convertPdf();
 
         if (!$pdfHash) {
             return null;
         }
 
-        $pdfFile = TEALATEX_DIR."/pdf/".$pdfHash.".pdf";
+        $pdfFile = $this->latexDir."/pdf/".$pdfHash.".pdf";
         shell_exec(
             self::CONVERT_BIN.
             " -trim -density {$d} ".escapeshellarg($pdfFile).

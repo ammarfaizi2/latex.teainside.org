@@ -387,7 +387,7 @@ $initText =
                         error_log_data.value = json.log;
                     } else if (json.status === "success") {
                         result_pdf.style.display = "";
-                        pdf_link.href = "latex/pdf/"+json.res+".pdf";
+                        pdf_link.href = "api.php?action=file&type=pdf&hash="+json.res;
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight * (0.5));
@@ -414,8 +414,7 @@ $initText =
                         error_log_data.value = json.log;
                     } else if (json.status === "success") {
                         result.style.display = "";
-                        rimg.src = "latex/png/"+json.res+".png";
-                        link_rimg.href = "latex/png/"+json.res+".png";
+                        rimg.src = link_rimg.href = "api.php?action=file&type=png&hash="+json.res;
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight * (0.5));
@@ -442,8 +441,7 @@ $initText =
                         error_log_data.value = json.log;
                     } else if (json.status === "success") {
                         result.style.display = "";
-                        rimg.src = "latex/png/"+json.res+".png";
-                        link_rimg.href = "latex/png/"+json.res+".png";
+                        rimg.src = link_rimg.href = "api.php?action=file&type=png&hash="+json.res;
                     }
                     if (auto_scroll.checked) {
                         window.scrollTo(0,document.body.scrollHeight * (0.5));
