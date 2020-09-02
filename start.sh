@@ -10,6 +10,7 @@ cp -vf /opt/works/etc/ssh/sshd_config /etc/ssh/sshd_config;
 exec /usr/sbin/sshd -D &
 
 # Run PHP.
+cp -vf /opt/works/etc/php/7.4/fpm/php.ini /etc/php/7.4/fpm/php.ini;
 cp -vf /opt/works/etc/php/7.4/fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf;
 cp -vf /opt/works/etc/php/7.4/fpm/pool.d/www.conf /etc/php/7.4/fpm/pool.d/www.conf;
 /usr/sbin/php-fpm7.4 --daemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf &
