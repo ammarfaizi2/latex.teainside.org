@@ -101,7 +101,7 @@ if (isset($_GET["action"])) {
         $json["bcolor"] = "white";
       }
   
-      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
+      $st = new \TeaLaTeX\TeaLaTeX($json["content"], $useIsolate);
       if (!$st->save()) {
         $res = "Error when saving tex file!";
         goto ret;
@@ -132,7 +132,7 @@ if (isset($_GET["action"])) {
         goto ret;
       }
 
-      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
+      $st = new \TeaLaTeX\TeaLaTeX($json["content"], $useIsolate);
       if (!$st->save()) {
         $res
          = "Error when saving tex file!";
