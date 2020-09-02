@@ -13,6 +13,7 @@ const CONTENT_TYPE_MAP = [
 $log = [];
 $status = "error";
 $res = "no_action";
+$useIsolate = true;
 if (isset($_GET["action"])) {
   switch ($_GET["action"]) {
     case "file":
@@ -79,7 +80,7 @@ if (isset($_GET["action"])) {
         $json["bcolor"] = "white";
       }
   
-      $st = new \TeaLatex\TeaLatex($json["content"], true);
+      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
       if (!$st->save()) {
         $res = "Error when saving tex file!";
         goto ret;
@@ -110,7 +111,7 @@ if (isset($_GET["action"])) {
         goto ret;
       }
 
-      $st = new \TeaLatex\TeaLatex($json["content"]);
+      $st = new \TeaLatex\TeaLatex($json["content"], $useIsolate);
       if (!$st->save()) {
         $res
          = "Error when saving tex file!";
